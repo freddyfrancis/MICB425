@@ -1,10 +1,17 @@
 ---
-title: "Git_Intro_DS2_full"
+title: 'Introduction to Git'
 author: "Julia Beni"
-date: "1/12/2018"
+date: "version `r format(Sys.time(), '%B %d, %Y')`"
 output:
-  html_document: default
-  pdf_document: default
+  html_document:
+    df_print: paged
+  pdf_document:
+    latex_engine: xelatex
+mainfont: Arial
+fontsize: 11 pt
+editor_options: 
+  chunk_output_type: console
+urlcolor: blue
 ---
 
 ```{r setup, include=FALSE}
@@ -72,7 +79,7 @@ One of the primary strengths of GitHub is for version control of documents. Git 
 
 When your local, cloned copy is up-to-date (identical) with the master repo, this is the message you should see after running `git status`:
 
-![](/Users/Julia/Screenshots/uptodate.png)
+![](Screenshots/uptodate.png)
 "Your branch is up to date with 'origin/master'." is the important message here.
 
 Now we will demonstrate what happens when there is a delta between your clone and the master repo. 
@@ -82,10 +89,10 @@ In order to update our local git connections, we need to retrieve them from the 
 
 Below is the message you should see after running git fetch:
 
-![](/Users/Julia/Screenshots/gitfetch.png)
+![](Screenshots/gitfetch.png)
 Now, if there are any changes between your local cloned repository and the master, they will be recorded. In order to see if there are changes, run `git status` once more in the terminal.
 
-![](/Users/Julia/Screenshots/gitstatusbehindmaster.png)
+![](Screenshots/gitstatusbehindmaster.png)
 
 
 The status command has noticed that your local cloned directory is one document behind the master. It also suggests how to remedy this situation - by using the pull command. Let's do that (Figure 1):
@@ -94,7 +101,7 @@ The status command has noticed that your local cloned directory is one document 
 
 The result of the pull command looks like this (Figure 2):
 
-![](/Users/Julia/Screenshots/gitpull.png)
+![](Screenshots/gitpull.png)
 
 You can see from the command output that the document SURPRISE.txt was added to your clone.
 
@@ -114,21 +121,24 @@ This should output the directory location ~/Documents/MICB425_materials. You nee
 
 *Note: the "." is used as a shortcut to refer to the current working directory. ".." starts you in that current directory and then moves you up one directory level.*
 
-You should now be located in the ~/Documents directory. Verify this using the pwd command.
+You should now be located in the ~/Documents directory. Verify this using the `pwd` command.
+
 Next we will create a new directory with the make directory command. Let's title this directory MICB425_portfolio, and create it using the following command syntax:
 
 `mkdir MICB425_portfolio`
 
 
 Finally, you will populate your MICB425_portfolio folder with an empty txt file titled ID.txt. We will use this file in the future.
-To start, change directories into the directory you just created.
-*Hint: determine which directory you are currently located in and then move into the MICB425_portfolio directory as we have done before*
+
+To start, change directories into the directory you just created.  
+
+`cd MICB425_portfolio`
 
 Once located in the correct directory, write the empty .txt file this way:
 
 `touch ID.txt`
 
-If you are uncertain whether the above command worked, you can use one of the commands taught previously to verify if ID.txt is among the files in the working directory.
+If you are uncertain whether the above command worked, you can use 'ls' to verify if ID.txt is in the MICB425_portfolio folder.
 
 ### Creating your own repo and pushing a local directory to it
 Now you'll create a repository on your GitHub account and push a local directory to it.
@@ -139,7 +149,7 @@ In the upper right-hand corner of any GitHub page (once you've signed in), you w
 
 Create a new repository titled MICB425_portfolio. Do **not** initialize the repo with README, gitignore, or license files for now. **Do not navigate away from this webpage.** We will use information found on it shortly.
 
-Now we will return to the terminal. Ensure that your working directory is still the MICB425_portfolio directory we just finished creating. From this directory we will initialize this directory as a new GitHub repo: 
+Now we will return to the terminal. **Ensure that your working directory is still the MICB425_portfolio directory** we just finished creating. From this directory we will initialize this directory as a new GitHub repo: 
 
 `git init`
 
