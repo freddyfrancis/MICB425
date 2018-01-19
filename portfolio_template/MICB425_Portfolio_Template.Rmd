@@ -20,7 +20,7 @@ The first of your second level headers (##) is to be used for the portfolio cont
 * Portfolio repo setup
     + Completion status: 
     + Comments:
-* RMarkdown Pretty PDF Challenge
+* RMarkdown Pretty html Challenge
     + Completion status:
     + Comments:
 * Evidence worksheet_01
@@ -60,8 +60,8 @@ Detail the code you used to create, initialize, and push your portfolio repo to 
 
 
 
-### RMarkdown pretty PDF challenge
-Paste your code from the in-class activity of recreating the example PDF.
+### RMarkdown pretty html challenge
+Paste your code from the in-class activity of recreating the example html.
 
 
 
