@@ -3,13 +3,13 @@ title: "Introduction to RStudio and R markdown"
 author: "Kim Dill-McFarland"
 date: "version `r format(Sys.time(), '%B %d, %Y')`"
 output:
+  pdf_document:
+    toc: yes
   html_document:
     df_print: paged
     toc: yes
     toc_float:
       collapsed: no
-  pdf_document:
-    toc: yes
 mainfont: Arial
 fontsize: 11 pt
 editor_options:
@@ -17,7 +17,7 @@ editor_options:
 urlcolor: blue
 ---
 
-# Review Data Science Friday last week
+# Review Data Science Friday Git from last week
 Today's introductory activity aims to ensure that you feel comfortable working with your local copies of your GitHub repo and updating your remote (located on the website) version of that repo. The ultimate goal is to update the ID.txt document that we created last class period with your name and student ID number. 
 
 The goal: edit ID.txt on your local machine to add your name (First, Preferred, Last) and student ID, then get that edited version on your remote repo (located on the website).
@@ -32,6 +32,17 @@ Work in groups of 3-4 to determine the commands you would use to:
 4. check if step 3 was successful
 5. tell Git that you want to make the changes final to your local repo (on your computer)
 6. update your remote repo (online) with your now modified local repo (on your computer)
+
+## Review Git answer
+1. `cd ~/Documents/MICB425_portfolio`
+2. `nano ID.txt`
+  + nano is our recommended command line text editor. It comes pre-installed on Macs and can be downloaded for PCs [here](https://www.nano-editor.org/download.php)
+  + Other options include vim, emacs, Notepad++...
+3. `git add .`
+4. `git status`
+5. `git commit -m "Updated ID.txt"`
+  + Remember to use `-m` to include a message about what changes your are committing
+6. `git push origin`
 
 # Introduction
 
