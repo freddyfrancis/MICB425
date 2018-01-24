@@ -315,5 +315,6 @@ This document demonstrates just some of the functions in an R markdown. We will 
 
 * [R markdown tour](http://rmarkdown.rstudio.com/authoring_quick_tour.html)
 * [More R markdown examples](http://www.stat.cmu.edu/~cshalizi/rmarkdown/)
+* [Code chunk options](https://yihui.name/knitr/options/#code-evaluation)
 * [R markdown cheatsheet](https://www.rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf)
 * [Other R cheatsheets](https://www.rstudio.com/resources/cheatsheets/)
