@@ -1,2 +1,10 @@
-#Mac system files
+# Mac
 *.DS_Store
+
+# Windows
+Thumbs.db
+
+# R
+*.Rhistory
+*.RData
+*.Rproj.user
