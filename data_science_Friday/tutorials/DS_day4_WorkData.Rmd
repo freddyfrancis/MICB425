@@ -1,0 +1,279 @@
+---
+title: "Working with data in R"
+author: "Kim Dill-McFarland"
+date: "version `r format(Sys.time(), '%B %d, %Y')`"
+output:
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_float:
+      collapsed: no
+  pdf_document:
+    toc: yes
+mainfont: Arial
+fontsize: 11 pt
+editor_options:
+  chunk_output_type: console
+urlcolor: blue
+---
+
+# Review Pretty_html assignment #3
+
+* What were some challenges you encounterd in replicating pretty_html?
+* If you knit to PDF, what was different between the PDF and html output?
+
+# Introduction
+In this Data Science Friday, we will begin to work with data in R/RStudio. We will work with an OTU table generated from [16S rRNA amplicon sequencing data](https://www.nature.com/articles/sdata2017160) as well as [associated geochemical metadata](https://www.nature.com/articles/sdata2017159) for Saanich Inlet water samples. Of note, this is the some of the data you will use in Project 1 in this course as well as what will be used in the [Advanced Intro to R workshop series](https://www.eventbrite.ca/e/advanced-intro-to-r-workshop-series-march-2018-tickets-35922857233) in March.
+
+Students will be able to:
+
+* Import tabular data into RStudio
+* Manipulate a data frame using `dplyr` functions
+
+#Start a new RStudio session
+To open RStudio, be sure to use your `.Rproj` file. This ensures that you are in your project so that you retain project benefits like auto-saving in your project folder (*i.e.* MICB425_portfolio).
+
+## Saving R code
+While RMarkdown is useful for creating beautiful reports with R code and outputs, it is not necessary in all cases. When you don't need to knit to an HTML/PDF report, you can simply save your code in an RScript.
+
+Let's create an RScript to save today's session with File -> New File -> R Script
+
+If you prefer the RMarkdown format, please feel free to start a new R Markdown instead.
+
+## Comments in scripts
+Since scripts do not have code chunks like R Markdown (` ```{r} `   ` ``` `), we need some way to organize our code and provide additional information within the script. Why you may ask? Because any other human reading your code (including future you) will need some guidance to follow what it does.
+
+![XKCD #1421](Screenshots/XKCD1421.png)
+
+
+To write text and have R not treat it as code, we comment it out with `#`. For example,
+```{r}
+#This is a comment
+version #See how comments can also go at the end of lines with code on them!
+```
+
+## Running code
+As you work in an RScript, you can run the code from your script in the console by
+
+* Clicking "Run" in the upper right corner of the script window.
+* Hitting ctrl+Enter or cmd+Enter
+
+Either will run the line of code that your cursor is currently on. You **do not** need to select the entire line, just have your cursor on it.
+
+## Help
+Remember, you can get help with any function in R by inputting `?function name` or `??function name` into the Console. This will open a window in the bottom right under the Help tab with information on that function, including input options and example code.
+
+# Basic R code
+Some useful R code that will be used throughout 
+
+R code | Meaning
+------ | -------------------------
+  `&`  | and
+  `|`  | or
+  `=`  | equals
+ `==`  | exactly equals
+ `!=`  | does not equal
+  `>`  | greater than
+ `>=`  | greater than or equal to
+
+# Packages
+R packages allow any R user to code reproducible functions and share them with the R community. Packages exist for anything ranging from microbial ecology to complex graphics to multivariate modeling and beyond. 
+
+In this course, we will use several packages within the [tidyverse](https://www.tidyverse.org/), in particular `dplyr` and `ggplot2`. Since these packages are used together so frequently, they can be downloaded and loaded into R all together.
+
+## Installation
+You install these packages in RStudio through the Packages tab in the lower right window. Click 'Install' and type in tidyverse. Select tidyverse and 'Install'. You can also install them from the R Console with `install.packages("tidyverse")`.
+
+## Loading
+Once you've installed a package, you must load it into R just like you must load data. Unlike data, however, the `.RData` file does not store imported packages. So, you **must load packages every time** you start a new RStudio session.
+
+To load a package,
+```{r}
+library(tidyverse)
+```
+
+The first 2 sections list the versions of packages being loaded. The third section "Conflicts" shows functions within a package the have exactly the same name as functions in base R or another loaded package. R assumes you mean the most recently loaded package version of the function unless you specify otherwise. For example, if you use `filter()`, R will call this function from the `dplyr` package. If you, in fact, wanted to other version from the `stats` package, you would need to specify `stats::filter()`.
+
+# Import data
+When we want to read a table into R, we use the `read.table` function. Like all functions in R, you need to provide options to `read.table` like the name of the data, etc. To do this, we specify things within parentheses after the function like so.
+
+Read a table into R
+```{r}
+#Read in a table.
+read.table(file="Saanich.metadata.txt")
+```
+
+Here, we've told R our `file`. Since we are using a Project, R looks for this file in the Project folder (MICB425_portfolio). If we wanted to specify a file not in our Project folder, we would need to provide the full path.
+
+We can also specify other features of our data. In the case of this table, we want to use the options:
+
+* `header` tells R that the first row is column names, not data
+* `row.name` tells R a column that is row names, not data. In this table, this is the 1^st^ column
+* `sep` tells R the delimiter such as `"\t"` for tab, `","` for comma, etc.
+* `na.strings` tells R what text it should consider as NAs (cells without data). If there were more than one blank format, you could give a list like `c("NA","NAN",".")`
+
+Read a table into R with parameters
+```{r}
+read.table(file="Saanich.metadata.txt", header=TRUE, row.names=1, sep="\t", na.strings="NAN")
+```
+
+However, you will see this code just prints our table into the console. Not very useful if we want to do anything with the data. So, we need to name the data as an object in R. We do this by prefacing `read.table` with a name and either `=` or `<-`. I tend to use `=` so you will see that notation throughout this module.
+
+Save a table as an R object
+```{r}
+metadata = read.table(file="Saanich.metadata.txt", header=TRUE, row.names=1, sep="\t")
+
+#Which is equivalent to
+
+metadata <- read.table(file="Saanich.metadata.txt", header=TRUE, row.names=1, sep="\t")
+```
+
+Now we see the metadata show up in our Environment on the right. If we click on that object in the Environment pane, we can see the table. Row and columns names are in grey boxes and data is in white boxes.
+
+Since we are using an R project, we can close RStudio, save our `RScript` and `RData`, and when we re-open using the `.Rproj`, our data will still be in the Environment! Try it and see!
+
+## Exercise 1
+We have another data table we will be using in up-coming DS Fridays, `Saanich.OTU.txt`. Import this data as a named object with the correct parameters in R.
+
+```{r echo=FALSE, results=FALSE}
+OTU = read.table(file="Saanich.OTU.txt", header=TRUE, row.names=1, sep="\t")
+```
+
+# Manipulate data
+Let's explore the metadata with several functions from the `dplyr` package. Most of what we will do with this package can technically be accomplished with base R functions. However, `dplyr` is faster and much more readable due to its use of verbs and pipes.
+
+## Pipes
+A pipe takes the output from one function and feeds it to the 1^st^ argument of the next function. In R, the pipe is `%>%` and you will see its usage as we work with the metadata. Also, a pipe can be inserted with the key shortcut cmd+shift+m or ctrl+shift+m
+
+## Verbs
+Verbs in `dplyr` are simply the functions within the package. They are built around the following 5 verbs, which accomplish the majority of common data manipulations.
+
+* select: view only some variables (columns)
+* filter: choose observations (rows) by their values
+* arrange: order observations (rows)
+* mutate: create new variables (columns)
+* summarise: calculate a summary of many variable values
+
+### Select
+Let's look at the oxygen (O~2~) in our water samples. Notice how we pipe the data frame with our metadata into the `select` function, so the following is equivalent to `select(metadata, O2_uM)`
+
+```{r}
+metadata %>% 
+  select(O2_uM)
+```
+
+We see that oxygen decreases as we go down the the water column.
+
+We can also generalize our selection. For example, if we didn't know the exact name of the column with oxygen data in it, we could select all variables the contain "O2" or "oxygen".
+
+```{r}
+metadata %>% 
+  select(matches("O2|oxygen"))
+```
+
+We can now see that there are actually 2 variables for oxygen content in the water samples: measures in $\mu$M and in volts (V).
+
+You can also generalize using logical phrases such as `starts_with`, `ends_with`, or `contains`.
+
+### Filter
+Filter functions similarly to select only on rows instead of columns. Still looking at oxygen data, let's select the data for the samples that do not contain any oxygen.
+
+```{r}
+metadata %>% 
+  filter(O2_uM == 0)
+```
+
+### Combining verbs
+If we wanted to just see which depths have no oxygen, we can combine `filter` and `select` with a pipe.
+
+```{r}
+metadata %>% 
+  filter(O2_uM == 0) %>% 
+  select(Depth_m)
+```
+
+Notice how readable this code is. For comparison, to accomplish the same thing in base R, you would use the following.
+```{r}
+metadata[metadata$O2_uM == 0, "Depth_m"]
+```
+
+### Exercise 2
+Using `dplyr`, find at what depth(s) methane (CH~4~) is above 100 nM while temperature is below 10 &deg;C. Print out a table showing only the depth, methane, and temperature data.
+
+```{r echo=FALSE, results=FALSE}
+metadata %>% 
+  filter(CH4_nM > 100) %>% 
+  filter(Temperature_C < 10) %>% 
+  select(Depth_m, CH4_nM,Temperature_C)
+
+#or
+
+metadata %>% 
+  filter(CH4_nM > 100 & Temperature_C < 10) %>% 
+  select(Depth_m, CH4_nM,Temperature_C)
+```
+
+### Mutate
+Mutate creates new variables, usually based on data contained in other variables in the data set.
+
+Looking at the metadata, you may notice that most nutrient measurements are in $\mu$M, except nitrous oxide (N~2~O) and methane (CH~4~), which are in nM. We likely want to plot all nutrients on the same scale, so let's calculate a new variable for nitrous oxide in $\mu$M.
+
+```{r}
+metadata %>% 
+  mutate(N2O_uM = N2O_nM/1000)
+```
+
+`mutate` keeps all of the data in addition to the new variable. If we only want to keep our newly calculated variable, we use `transmute` instead.
+```{r}
+metadata %>% 
+  transmute(N2O_uM = N2O_nM/1000)
+```
+
+Both of these only calculate the new variable; they do not add it to the metadata data frame in our R environment. However, we can easily use the nitrous oxide in $\mu$M variable in later calculations, figures, etc if we pipe the mutated data frame into another function like
+
+```{r}
+metadata %>% 
+  mutate(N2O_uM = N2O_nM/1000) %>% 
+  ggplot() + geom_point(aes(x=Depth_m, y=N2O_uM))
+```
+
+*More on ggplot later.*
+
+In this way, you do not alter your original data (which you should never do) and you do not clutter your R environment with many nearly identical data frames (which would happen if you made a new object like metadata_all_uM).
+
+### Exercise 3
+Convert all variables that are in nM to $\mu$M. Output a table showing only the original nM and converted $\mu$M variables
+
+```{r echo=FALSE, results=FALSE}
+#Find which variables are in nM
+metadata %>% 
+  select(matches("nM")) %>% 
+  head()
+
+#Calculate uM variables
+metadata %>% 
+  mutate(N2O_uM = N2O_nM/1000, 
+         Std_N2O_uM = Std_N2O_nM/1000,
+         CH4_uM = CH4_nM/1000,
+         Std_CH4_uM = Std_CH4_nM/1000) %>% 
+  select(N2O_nM, N2O_uM,
+         Std_N2O_nM, Std_N2O_uM,
+         CH4_nM, CH4_uM,
+         Std_CH4_nM ,Std_CH4_uM)
+```
+
+### Arrange
+Arrange is used to order rows by given variable(s). It is most powerful when you want to create complex ordering similar to using multiple levels of sorting in Excel. For example, ordering by year then month then day.
+
+### Summarise
+Summarise calculates summary statistics like mean, standard deviation, maximum, minimum, etc. Its power comes in the use of groupings like calculating the mean temperature for depths 0-100 and 110-200m separately.
+
+As these 2 functions are not directly applicable to these data, we will not specifically go over them but they may be of use in your projects later this term! The `dplyr` tutorial below has some great examples.
+
+# More resources
+
+* [R cheatsheets](https://www.rstudio.com/resources/cheatsheets/)
+* [Introduction to dplyr](https://cran.r-project.org/web/packages/dplyr/vignettes/dplyr.html)
+* [dplyr tutorial](https://rpubs.com/justmarkham/dplyr-tutorial)
+* [dplyr video tutorial](https://www.r-bloggers.com/hands-on-dplyr-tutorial-for-faster-data-manipulation-in-r/)
+* [More functions in dplyr and tidyr](https://rpubs.com/bradleyboehmke/data_wrangling)
