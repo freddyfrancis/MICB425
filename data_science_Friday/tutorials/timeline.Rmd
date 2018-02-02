@@ -1,0 +1,90 @@
+---
+title: "Evolutionary Development of Earth"
+author: "Julia Beni"
+date: "version `r format(Sys.time(), '%B %d, %Y')`"
+runtime: shiny
+output:
+  html_document: 
+    toc: yes
+    toc_float: 
+      collapsed: false
+editor_options: 
+  chunk_output_type: console
+---
+### Installing necessary packages for this interactive document  
+
+
+*In order to get this document to run correctly, please install the following packages using these commands:*
+```{r, eval=FALSE}
+install.packages("plotly")
+install.packages("shiny")
+```
+  
+  
+  *You can render the document after installing packages using the "Run Document" command in R*
+  
+### Interactive timeline for the development of the Earth  
+
+
+  This document tracks some of the events recorded during your 01-29-18 and 01-31-18 MICB425 timeline storm the board session. It demonstrates some other uses for RMarkdown and is provided as an example for those interested in how else Markdown can be leveraged.
+  
+**To see the document interactivity, mouse over the data points in the below timeline**
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+tics <-rep(0,14)
+Million.years.ago<-c(4600,4500,4400,4200,3800,3750,3500,3000,2700,2200,2100,1300,550,0)
+events<-c("Solar system formed","formation of moon giving Earth spin and tilt, day/night cycles & seasons","formation of oceans and early atmosphere","Darwinian threshold",
+          "prokaryotic cells, Rubisco, stable sea chemistry, halted meteorite bombardment","photosynthesis","cyanobacteria","eukaryotic cells",
+          "great oxidation event, Red Beds","first snowball Earth","appearance of multicellular life", "animals","humans","today")
+epoch<-c(rep("Hadean",4),rep("Archaen",5),rep("Proterozoic",3),rep("Phanerozoic",2))
+
+ddd<-data.frame(tics,Million.years.ago,events,epoch)
+#install.packages("plotly")
+#install.packages("shiny")
+library(plotly)
+
+ay <- list(
+  title = "",
+  zeroline = FALSE,
+  showline = FALSE,
+  showticklabels = FALSE,
+  showgrid = FALSE
+)
+
+ax <- list(
+  title = "Million years ago"
+)
+
+plot_ly(ddd, x = ~Million.years.ago, y = ddd$tics, type = "scatter",
+  # Hover text:
+  text = ~paste(events),
+  color = ~epoch
+) %>%
+  layout(title="Evolutionary Development of Earth", xaxis = ax, yaxis = ay)
+```
+  
+    
+    
+    
+This document is interactive - the data points in the plot below list the event they mark when you hover your mouse over them. That interactivity is achieved using an R package called plotly. Plotly produces some cool 2D and 3D interactive graphics that you may be interested in using for your course projects.  
+  
+### Physical and chemical characterization of Earth epochs  
+
+
+Select an epoch from the dropdown to see a summary of the predominant physical and chemical characteristics of Earth at the time.  
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+e2<-c("Hadean","Archaen","Proterozoic","Phanerozoic")
+chr<-c("dry surface at 500 degrees C, 90 bar pressure on Earth's surface; carbon dioxide tied up in carbonate materials such as limestone", "strong greenhouse gases predominate (methane and carbon dioxide)", "oxidation of the early atmosphere - microaerobic", "increased oxygenation of the atmosphere, mass extinction events from meteorite impacts")
+
+ab<-as.data.frame(cbind(e2,chr),stringsAsFactors = FALSE)
+
+selectInput("Epoch","Epoch:",choices=e2)
+renderPrint({
+  ab$chr[ab$e2==input$Epoch]
+})
+
+```
+  
+  
+  These interactive elements are created using an RMarkdown wrapper for a package called Shiny. Shiny is used here to provide the dynamic text appearing under the dropdown menu. This is one small example of how many of these packages can be used together. 
