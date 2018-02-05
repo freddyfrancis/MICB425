@@ -1,0 +1,110 @@
+---
+title: "Evolutionary Development of Earth"
+author: "Julia Beni"
+date: "version `r format(Sys.time(), '%B %d, %Y')`"
+runtime: shiny
+output:
+  html_document: 
+    toc: yes
+    toc_float: 
+      collapsed: false
+editor_options: 
+  chunk_output_type: console
+---
+#### Installing necessary packages for this interactive document  
+
+
+*In order to get this document to run correctly, please install the following packages using these commands:*
+```{r, eval=FALSE}
+install.packages("plotly")
+install.packages("shiny")
+```
+  
+  
+  *You can render the document after installing packages using the "Run Document" command in R*
+  
+### Interactive timeline for the development of the Earth  
+
+
+  This document tracks some of the events recorded during your 01-29-18 and 01-31-18 MICB425 timeline storm the board session. It demonstrates some other uses for RMarkdown and is provided as an example for those interested in how else Markdown can be leveraged.
+  
+**To see the document interactivity, mouse over the data points in the below timeline**
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+# Create marks on the time series with a vector. This holds the "y-value" for the timeline, which we are using as 0 for this application.
+tics <-rep(0,14)
+
+# Create another vector the same length of the time series tics that holds the discrete dates to be displayed on the timeline. List the dates as a factor of millions of years ago (billions are a thousand million years).
+Million.years.ago<-c(4600,4500,4400,4200,3800,3750,3500,3000,2700,2200,2100,1300,0.550,0)
+
+# Create a vector that holds the text of the events that correspond to the dates that you provided in the Million.years.ago vector.
+events<-c("Solar system formed","formation of moon giving Earth spin and tilt, day/night cycles & seasons","formation of oceans and early atmosphere","Darwinian threshold",
+          "prokaryotic cells, Rubisco, stable sea chemistry, halted meteorite bombardment","photosynthesis","cyanobacteria","eukaryotic cells",
+          "great oxidation event, Red Beds","first snowball Earth","appearance of multicellular life", "animals","humans","today")
+
+# Create a vector that holds the names of the epoch to which the events you've recorded correspond.
+epoch<-c(rep("Hadean",4),rep("Archaen",5),rep("Proterozoic",3),rep("Phanerozoic",2))
+
+# Merge the vectors you created into a dataframe.
+ddd<-data.frame(tics,Million.years.ago,events,epoch)
+
+# Load the plotly and shiny libraries; you'll need this for the plotting later.
+library(plotly)
+library(shiny)
+
+# Define some axis parameters for the interactive plotly plot you're building. I want this to look like a timeline, so I want to effectively erase the y-axis.
+ay <- list(
+  title = "",
+  zeroline = FALSE,
+  showline = FALSE,
+  showticklabels = FALSE,
+  showgrid = FALSE
+)
+
+# Define the axis title parameters for the plot. You will use this  and the ay variable you defined previously in the next command.
+ax <- list(
+  title = "Million years ago"
+)
+
+# Make your interactive plot:
+plot_ly(ddd, x = ~Million.years.ago, y = ddd$tics, type = "scatter",
+  # Hover text:
+  text = ~paste(events),
+  color = ~epoch
+) %>%
+  layout(title="Evolutionary Development of Earth", xaxis = ax, yaxis = ay)
+```
+  
+    
+    
+    
+This document is interactive - the data points in the plot below list the event they mark when you hover your mouse over them. That interactivity is achieved using an R package called plotly. Plotly produces some cool 2D and 3D interactive graphics that you may be interested in using for your course projects. Also, feel free to play with this document architecture. You can add this to your portfolio in addition to your portfolio worksheet if you want to modify the structure and add your own timeline points.
+  
+#### Physical and chemical characterization of Earth epochs  
+
+
+**Select an epoch from the dropdown to see a summary of the predominant physical and chemical characteristics of Earth at the time.**  
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+
+# Create a vector that holds all of the epochs that were discussed in class.
+e2<-c("Hadean","Archaen","Proterozoic","Phanerozoic")
+
+# Create a vector that describes Earth's conditions at each of the corresponding epochs listed in the above vector.
+chr<-c("dry surface at 500 degrees C, 90 bar pressure on Earth's surface; carbon dioxide tied up in carbonate materials such as limestone", "strong greenhouse gases predominate (methane and carbon dioxide)", "oxidation of the early atmosphere - microaerobic", "increased oxygenation of the atmosphere, mass extinction events from meteorite impacts")
+
+# Bind the two previous vectors into a data frame so you can call associate the epochs with their characteristics.
+ab<-as.data.frame(cbind(e2,chr),stringsAsFactors = FALSE)
+
+# Define a selector dropbox using functions in the Shiny package. The header for the dropbox is called "Epoch:", and within the function, we refer to this input as "Epoch" (this is similar to assigning a variable in base R). The choices supplied to the dropbox are everything listed in the vector e2.
+selectInput("Epoch","Epoch:",choices=e2)
+
+# Define the dynamic text that will appear as a result of what the document user chooses in the dropbox. This function utilizes the two vectors you built with epochs and their physical and chemical characteristics and their association in a dataframe.
+renderPrint({
+  ab$chr[ab$e2==input$Epoch]
+})
+
+```
+  
+  
+  These interactive elements are created using an RMarkdown wrapper for a package called Shiny. Shiny is used here to provide the dynamic text appearing under the dropdown menu. This is one small example of how many of these packages can be used together. 
