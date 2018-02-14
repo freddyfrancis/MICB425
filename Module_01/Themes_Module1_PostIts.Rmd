@@ -1,0 +1,44 @@
+---
+title: "Post-It Activity - Module 1"
+output:
+  pdf_document: default
+  html_document: default
+---
+## What is one theme you can identify from Module 1?
+
+### 1. Microbes are numerous and important...
+
+* Bacteria are important.
+* Microbes have more importance/functions than one might think.
+* Prokaryotes.
+* The importance of microbes.
+* Abundance - microbes are even more numerous than I originally thought.
+* We should move forward by striking a balance between human intervention and natural microbial metabolism in correcting the biogeochemical imbalances.
+* Judging by the sheer amount of microbial species and genes out there, I probably should learn R at some point.
+
+### Especially communities of microbes
+* Emergent properties.
+
+### 2. Microbes impact global cycles across space and time...
+* Microbial engine.
+* Microbes are guardians of metabolism and carry metabolic pathways/processes across millenia.
+* The impact of microbial catalysis on nutrient cycling.
+* Intermicrobial interactions underpin global biogeochemical cycles and local community-level metabolism.
+* Microbes affect nutrient cycles as much as humans.
+* Microbial processes, which occur at very small scales, can drive global processes at very large scales.
+* Microbes play a major roles in biogeochemical cycles.
+* A large array of metabolic pathway important proteins are conserved in microbes, even if they are not relied on. Conservation of essential genes.
+
+### Which has shaped and continues to shape the world we live in...
+* Contribution of microbes to the evolutionary changes on Earth.
+* Microbes contributed greatly to the evolution of aerobic life in the beginning.
+* Microbes are almost entirely responsible for the global atmosphere.
+* Small microscopic changes accumulates over time to shape the world we live in.
+* Microbes have been crucial in shaping Earth's biosphere.
+* Events influencing life on Earth.
+* Microbes were involved in formation of current Earth systems.
+
+### And allows us, the humans, to survive.
+* Microbes are vital to many biogeochemical cycles that are essential to human survival on the Earth.
+* Microbes have learned to work and function together to make this planet habitable!
+* Microbes shaped the world we live in today.
