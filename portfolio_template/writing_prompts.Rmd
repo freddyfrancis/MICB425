@@ -1,0 +1,13 @@
+---
+title: "Writing assignment prompts"
+output: pdf_document
+---
+
+# Writing assignment 01
+Microbial life can easily live without us; we, however, cannot survive without the global catalysis and environmental transformations it provides." Do you agree or disagree with this statement? Answer the question using specific reference to your reading, discussions and content from evidence worksheets and problem sets.
+
+# Writing assignment 02 (cancelled in 2018)
+Design an experimental workflow to recover glycoside hydrolase enzymes with cellulase activity from microbial communities inhabiting the hindgut of higher termites. How would you differentiate between encoded and expressed cellulase genes in these communities? Describe specific methodological biases or limitations associated with your workflow.
+
+# Writing assignment 03
+Discuss the challenges involved in defining a microbial species and how HGT complicates matters, especially in the context of the evolution and phylogenetic distribution of microbial metabolic pathways. Can you comment on how HGT influences the maintenance of global biogeochemical cycles through time? Finally, do you think it is necessary to have a clear definition of a microbial species? Why or why not?"
