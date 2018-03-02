@@ -11,6 +11,25 @@ editor_options:
 
 * Gain experience estimating diversity within a hypothetical microbial community
 
+
+#### Outline:
+
+In class Day 1:
+
+1. Define and describe species within your group's "microbial" community.
+2. Count and record individuals within your defined species groups.
+3. Remix all species together to reform the original community.
+4. Each person in your group takes a random sample of the community (*i.e.* devide up the candy).
+
+Assignment:
+
+5. Individually, complete a collection curve for your sample.
+6. Calculate alpha-diversity based on your original total community and your individual sample.
+
+In class Day 2:
+
+7. Compare diversity between groups.
+
 #### Part 1: Description and enumeration
 Obtain a collection of "microbial" cells from "seawater". The cells were concentrated from different depth intervals by a marine microbiologist travelling along the Line-P transect in the northeast subarctic Pacific Ocean off the coast of Vancouver Island British Columbia. 
 
@@ -44,7 +63,7 @@ example_data1 %>%
   kable_styling(bootstrap_options = "striped", font_size = 10, full_width = F)
 ```
 	
-For your sample:
+For your community:
 
 * Construct a table listing each species, its distinguishing characteristics, the name you have given it, and the number of occurrences of the species in the collection.
 * Ask yourself if your collection of microbial cells from seawater represents the actual diversity of microorganisms inhabiting waters along the Line-P transect. Were the majority of different species sampled or were many missed? 
@@ -72,7 +91,7 @@ ggplot(example_data2, aes(x=x, y=y)) +
 
 For your sample:
 
-* Create a collector's curve.
+* Create a collector's curve for your sample (not the entire original community).
 * Does the curve flatten out? If so, after how many individual cells have been collected?
 * What can you conclude from the shape of your collector's curve as to your depth of sampling?
 
@@ -98,6 +117,7 @@ species3 = 1/(2+4+1)
 The higher the value is, the greater the diversity. The maximum value is the number of species in the sample, which occurs when all species contain an equal number of individuals. Because the index reflects the number of species present (richness) and the relative proportions of each species with a community (evenness), this metric is a diveristy metric. Consider that a community can have the same number of species (equal richness) but manifest a skewed distribution in the proportion of each species (unequal evenness), which would result in different diveristy values.
 
 * What is the Simpson Reciprocal Index for your sample?
+* What is the Simpson Reciprocal Index for your original total community?
 
 ##### Richness: Chao1 richness estimator
 Another way to calculate diversity is to estimate the number of species that are present in a sample based on the empirical data to give an upper boundary of the richness of a sample. Here, we use the Chao1 richness estimator. 
@@ -115,6 +135,7 @@ So for our previous example community of 3 species with 2, 4, and 1 individuals 
 ```
 
 * What is the chao1 estimate for your sample?
+* What is the chao1 estimate for your original total community?
 
 #### Part 4: Alpha-diversity functions in R
 We've been doing the above calculations by hand, which is a very good exercise to aid in understanding the math behind these estimates. Not surprisingly, these same calculations can be done with R functions. Since we just have a species table, we will use the `vegan` package. You will need to install this package if you have not done so previously. 
@@ -147,8 +168,8 @@ In Project 1, you will also see functions for calculating alpha-diversity in the
 
 For your sample:
 
-* What is the Simpson Reciprocal Index using the R function?
-* What is the chao1 estimate using the R function?
+* What are the Simpson Reciprocal Indices for your sample and community using the R function?
+* What are the chao1 estimates for your sample and community using the R function?
     + Verify that these values match your previous calculations.
 
 #### Part 5: Concluding activity
