@@ -1,0 +1,109 @@
+---
+title: "MICB425 Project 1"
+subtitle: "mothur vs. QIIME2 Microbiome Data Analysis"
+author: "Kim Dill-McFarland"
+date: "version `r format(Sys.time(), '%B %d, %Y')`"
+output:
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_float:
+      collapsed: no
+---
+## Introduction
+
+For both projects in this course, you will work in teams to tackle challenging data sets in data science and microbial ecology. Project 1 uses 16S iTag (also known as amplicon) data from 7 depths in Saanich Inlet. 
+
+## Timeline
+
+1. March 7: OTU vs. ASV lecture
+2. March 9: Intro to Saanich lecture + start group work
+    + You should explore the data and choose your taxon of interest by the end of today
+3. March 12: Group work day
+4. March 14: Intro to statistics lecture + more group work time
+    + To gain the most out of the statistics introduction, your group should be at the point of trying to answer questions 2 and 4.
+5. March 16: Final group work day
+6. March 28: Soft deadline for draft to receive feedback
+7. April 25: Final reports due with final portfolios
+
+## Methods
+Water was collected from various depths at Saanich Inlet and filtered through a 0.22 μm Sterivex filter to collect biomass. Total genomic DNA was extracted from these filters. Amplicon sequencing of the variable 4 through 5 (V4-V5) region of the small subunit (16S) rRNA gene was then performed. These data were generated on the Illumina MiSeq platform with **2x300bp** technology. For more in-depth sampling and sequencing methods, please see [Hawley AK *et al* 2017](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5663217/) "A compendium of multi-omic sequence information from the Saanich Inlet water column" Sci Data 4: 170160.
+
+The resulting sequences were then processed through mothur and QIIME2 with as many consistent parameters as possible. Detailed pipelines are available in:
+
+`MICB425_materials/Project1/data`
+
+These pipelines resulted in 2 phyloseq objects, which you will use in your analyses. These are also available in the `data` folder.
+
+## Taxon of interest
+Based on your initial exploration of the data, you will choose 1 taxon to investigate in-depth. You can choose any taxon from any taxonomic level under the following criteria:
+
+* Not an "unclassified" group
+* Present at abundance > 0 in a least 3 samples
+* Encompasses at least 5 OTUs/ASVs
+    + You may also want to give yourself an upper limit on number of OTUs/ASVs as too many will make your plots large and unwieldy, though we are not specifically setting a maximum for you.
+
+## Reports
+Each group will complete **one** report with the following sections.
+
+### Abstract
+*200-250 words*
+
+### Introduction
+*500-750 words*
+
+* Introduce Saanich Inlet as a model ecosystem for studying microbial community responses to ocean deoxygenation *e.g.* seasonal cycles, relevant biogeochemistry, previous studies, etc. 
+* Introduce OTUs and ASVs
+* Frame your research questions for your chosen taxon. Why is your taxon of interest?
+
+### Methods
+*300-400 words*
+
+* Briefly describe the data (sampling, sequencing, processing, etc.)
+* Briefly describe your analysis methods like R version, packages used, statistcal tests employed to answer questions
+
+### Results
+*500-750 words*
+
+Your analysis will focus on the following questions:
+
+1. How does microbial community structure change with depth and oxygen concentration?
+    + Alpha-diversity
+    + Taxa presence and abundance
+2. Does your taxon of interest *significantly* differ in abundance with depth and/or oxygen concentration?
+3. Within your taxon, what is the richness (number of OTUs/ASVs)?
+4. Do the abundances of OTUs/ASVs within your taxon of interest change *significantly* with depth and/or oxygen concentration?
+5. Are the answers to the above the same using mothur and QIIME2 processed data?
+
+You must include ≥ 5 figures with titles and legends. See the example report for examples and inspiration. You do not necessary have to make any of these example plots; feel free to improve, expand, or make something completely different!
+
+### Discussion
+*750-1000 words*
+
+* If you found significant differences for your taxon across depth/oxygen, why might these be occurring (*hint* think about the accompanying geochemical data we have)? 
+* What are the implications of potential differences in pipelines for microbial ecology research and discovery?
+* Future directions
+
+### References
+*10 or more* formatted as in *Applied and Environmental Microbiology*
+
+## Assessment
+### Reports
+March 28: Please bring a printed copy of your group report to class for interim assessment. We will provide feedback and welcome drafts at any level!
+
+April 25: Each individual should have a copy of their group's final report in their portfolio for their future reference. These copies should be *identical* as we will mark one group member's portfolio copy at random and apply that to all other group members.
+
+Reports will be assessed on:
+
+* Completion of relevant analyses toward answering biological questions
+* Logic and completeness of conclusions made from these analyses
+* Writing clarity, grammar, and style
+* Figure clarity, effectiveness, and relevance
+* Group assessment (20%, see below)
+
+### Groups
+Assessment of groups will occur through [CATME](https://www.catme.org/) wherein everyone will assess themselves and their group members at the end of the term. In addition, each individual will be asked to identify which part(s) of the final report they contributed to and how.
+
+Should differences in contributions to projects be apparent, individuals will be marked accordingly for this portion of their overall project grade (20%). In extreme situations, individuals who fail to contribute to their group will be asked to complete an individual report.
+
+If issues occur within your group, please do not hesitate to contact Dr. Hallam (shallam@mail.ubc.ca), Dr. Crowe (sean.crowe@ubc.ca), or Dr. Dill-McFarland (kadm@mail.ubc.ca) *at any point*. 

@@ -1,0 +1,230 @@
+---
+title: "Example report"
+author: "Kim Dill-McFarland"
+date: "version `r format(Sys.time(), '%B %d, %Y')`"
+output:
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_float:
+      collapsed: no
+---
+# Abstract
+Brief, informative, clear summary of the report and main conclusions.
+
+# Introduction
+
+Saanich Inlet is cool. It is a seasonally anoxic fjord [1]. Other stuff about Sannich...
+
+Information on OTUs vs. ASVs...
+
+Using these data, we investigated how microbial communities differ across depth and oxygen gradients in Saanich Inlet with particular focus on the unclassified domain (*you will have a different taxon than this*). The unclassified domain is of interest because... In addition, we determine if and how different sequence analysis pipelines impact these biological conclusions.
+
+# Methods
+We have these data collected in this way for use in this project [1,2]... Sequences were processed using either mothur [3] or QIIME2 [4]... 
+
+Analysis was completed in R v3.4.3 [5] using the following packages.
+```{r}
+library("tidyverse")
+library("phyloseq")
+library("magrittr")
+```
+
+Relative abundances of our taxa of interest were compared across depth and oxygen gradients using [a statistical test + justification for using that particular test].
+
+# Results
+This example section is just to give you an idea of some of the analyses that you *could* do with these data. Please do not follow this section exactly! We will only show analyses with the mothur data in these examples and the plots are not perfect (axes labels, etc). *Let your taxon of interest and own biological questions guide the analysis you do!*
+
+### Data cleaning
+Data were loaded into R.
+```{r}
+load("data/mothur_phyloseq.RData")
+```
+
+Samples were rarefied/normalized to 100,000 sequences per sample to facilitate comparisons between samples. A random seed was set to ensure reproducibility.
+```{r}
+set.seed(4832)
+m.norm = rarefy_even_depth(mothur, sample.size=100000)
+```
+
+Rarefied counts were converted to relative abundance percentages.
+```{r}
+m.perc = transform_sample_counts(m.norm, function(x) 100 * x/sum(x))
+```
+
+### How does microbial community structure change with depth and oxygen concentration?
+#### Alpha-diversity
+Alpha-diversity and richness were calculated for the total community in R.
+```{r}
+# Calculate
+m.alpha = estimate_richness(m.norm, measures = c("Chao1", "Shannon"))
+
+# Combine these data with the rest of the geochemical data so that we have 1 data frame to work with in future plots. Note use of the rownames_to_column function which mutates the dataframes to have a new column containing the row names data (because the tidyverse doesn't understand row names).
+m.meta.alpha = full_join(rownames_to_column(m.alpha), rownames_to_column(data.frame(m.perc@sam_data)), by = "rowname")
+
+m.meta.alpha
+```
+
+Example plots
+```{r}
+m.meta.alpha %>% 
+  
+ggplot() +
+  geom_point(aes(x=Depth_m, y=Shannon)) +
+   geom_smooth(method='auto', aes(x=as.numeric(Depth_m), y=Shannon)) +
+  labs(title="Example 1: Alpha-diversity across depth", y="Shannon's diversity index", x="Depth (m)")
+```
+
+```{r}
+m.meta.alpha %>% 
+
+ggplot() +
+  geom_point(aes(x=O2_uM, y=Shannon)) +
+  labs(title="Example 2: Alpha-diversity across oxygen", y="Shannon's diversity index", x="Oxygen (uM)")
+```
+
+```{r}
+m.meta.alpha %>% 
+  mutate(O2_group = ifelse(O2_uM == 0, "anoxic", "oxic")) %>% 
+
+# Use this in a plot
+ggplot() +
+  geom_boxplot(aes(x=O2_group, y=Shannon)) +
+  labs(title="Example 3: Alpha-diversity by oxic/anoxic", y="Shannon's diversity index", x="Oxygen")
+```
+
+#### Taxa presence and abundance
+Example plots using `phyloseq` for domain data. You should explore other taxonomy levels.
+```{r}
+m.perc %>% 
+  
+plot_bar(fill="Domain") + 
+  geom_bar(aes(fill=Domain), stat="identity") +
+  labs(title="Example 4: Domains across samples")
+```
+
+```{r}
+m.perc %>% 
+  
+plot_bar() + 
+  geom_bar(aes(fill=Domain), stat="identity") +
+  facet_wrap(~Phylum, scales="free_y")+
+  labs(title="Example 5: Phyla across samples")
+```
+
+Examples outside of `phyloseq`
+```{r}
+m.perc %>%
+  tax_glom(taxrank = 'Domain') %>%
+  psmelt() %>% 
+
+ggplot() +
+  geom_boxplot(aes(x=Domain, y=Abundance)) +
+  coord_flip() +
+  labs(title="Example 6: Domain boxplots")
+```
+
+### Does your taxon of interest *significantly* differ in abundance with depth and/or oxygen concentration?
+
+Using the `magrittr` package, we can pipe our `tidyverse` modified data into linear models and other statiscal tests.
+
+Linear model
+```{r}
+m.norm %>% 
+  subset_taxa(Domain=="unknown") %>% 
+  tax_glom(taxrank = 'Domain') %>%
+  psmelt() %>%
+
+  lm(Abundance ~ Depth_m, .) %>% 
+  summary()
+```
+
+Plot to go along with linear model above.
+```{r}
+m.perc %>% 
+  subset_taxa(Domain=="unknown") %>% 
+  psmelt() %>% 
+  group_by(Sample) %>% 
+  summarize(Abundance_sum=sum(Abundance), Depth_m=mean(Depth_m)) %>% 
+  
+ggplot() +
+  geom_point(aes(x=Depth_m, y=Abundance_sum)) +
+  geom_smooth(method='lm', aes(x=as.numeric(Depth_m), y=Abundance_sum)) +
+  labs(title="Example 7: Abundance unclassified domain across depth")
+```
+
+**What about with respect to oxygen?**
+
+### Within your taxon, what is the richness (number of OTUs/ASVs)?
+Across all samples, there are 44 OTUs (*i.e.* taxa) within the unclassified domain.
+```{r}
+m.norm %>% 
+  subset_taxa(Domain=="unknown") 
+```
+
+Counting OTUs within the unclassified domain within each sample...
+```{r}
+m.norm %>% 
+  subset_taxa(Domain=="unknown") %>%
+  estimate_richness(measures = c("Observed"))
+```
+
+### Do the abundances of OTUs/ASVs within your taxon of interest change *significantly* with depth and/or oxygen concentration?
+
+General linear model for each OTU  
+OTU0242
+```{r}
+m.norm %>% 
+  psmelt() %>% 
+  filter(OTU=="Otu0242") %>% 
+
+  lm(Abundance ~ Depth_m, .) %>% 
+  summary()
+```
+
+**Repeat for all OTUs within domain and then correct for multiple comparisons.**
+
+This is all made up p-values.
+```{r}
+p.adjust(c(0.501, 0.031, 0.005, 0.324), method="fdr")
+```
+
+Plots to go along with these tests.
+```{r}
+m.perc %>% 
+  subset_taxa(Domain=="unknown") %>% 
+  psmelt() %>% 
+  
+ggplot() +
+  geom_point(aes(x=Depth_m, y=Abundance)) +
+  geom_smooth(method='lm', aes(x=Depth_m, y=Abundance)) +
+  facet_wrap(~OTU, scales="free_y") +
+  labs(title="Example 8: Abundance of OTUs within unclassified domain across depth")
+```
+
+```{r}
+m.perc %>% 
+  subset_taxa(Domain=="unknown") %>%
+  psmelt() %>% 
+  
+ggplot() +
+  geom_point(aes(x=Sample, y=OTU, size=Abundance, color=OTU)) + 
+  scale_size_continuous(range = c(0,5)) +
+  labs(title="Example 9: Abundance of OTUs within unclassified domain across depth")
+```
+
+**What about with respect to oxygen?**
+
+**What about QIIME2 ASV data?**
+
+# Discussion
+Are the answers to the above the same using mothur and QIIME2 processed data? What are the implications of potential differences in pipelines for microbial ecology research and discovery?
+
+# References
+
+1. Torres-Beltrán M, Hawley AK, Capelle D, Zaikova E, Walsh DA, Mueller A, Scofield M, Payne C, Pakhomova L, Kheirandish S, Finke J, Bhatia M, Shevchuk O, Gies EA, Fairley D, Michiels C, Suttle CA, Whitney F, Crowe SA, Tortell PD, Hallam SJ. 2017. A compendium of geochemical information from the Saanich Inlet water column. Sci Data 4:170159.
+2. Hawley AK, Torres-Beltrán M, Zaikova E, Walsh DA, Mueller A, Scofield M, Kheirandish S, Payne C, Pakhomova L, Bhatia M, Shevchuk O, Gies EA, Fairley D, Malfatti SA, Norbeck AD, Brewer HM, Pasa-Tolic L, del Rio TG, Suttle CA, Tringe S, Hallam SJ. 2017. A compendium of multi-omic sequence information from the Saanich Inlet water column. Sci Data 4:170160.
+3. Schloss PD, Westcott SL, Ryabin T, Hall JR, Hartmann M, Hollister EB, Lesniewski RA, Oakley BB, Parks DH, Robinson CJ, Sahl JW, Stres B, Thallinger GG, Van Horn DJ, Weber CF, Westcott SL, Ryabin T, Hall JR, Hartmann M, Hollister EB, Lesniewski RA, Oakley BB, Parks DH, Robinson CJ, Sahl JW, Stres B, Thallinger GG, Van Horn DJ, Weber CF. 2009. Introducing mothur: open-source, platform-Independent, community-supported software for describing and comparing microbial communities. Appl Environ Microbiol 75:7537-7541.
+4. Caporaso JG, Kuczynski J, Stombaugh J, Bittinger K, Bushman FD, Costello EK, Fierer N, Peña AG, Goodrich JK, Gordon JI, Huttley GA, Kelley ST, Knights D, Koenig JE, Ley RE, Lozupone CA, McDonald D, Muegge BD, Pirrung M, Reeder J, Sevinsky JR, Turnbaugh PJ, Walters WA, Widmann J, Yatsunenko T, Zaneveld J, Knight R. 2010. QIIME allows analysis of high-throughput community sequencing data. Nat Methods 7:335-336.
+5. R Core Team. 2017. R: A language and environment for statistical computing. 3.4.3. R Foundation for Statistical Computing, Vienna, Austria.
+

@@ -226,7 +226,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">mothur pipeline</h1>
 <h4 class="author"><em>Kim Dill-McFarland</em></h4>
-<h4 class="date"><em>version February 16, 2018</em></h4>
+<h4 class="date"><em>version March 06, 2018</em></h4>
 
 </div>
 
@@ -290,38 +290,21 @@ div.tocify {
 </div>
 <div id="create-phyloseq-object" class="section level2">
 <h2>Create phyloseq object</h2>
-<div id="create-a-taxonomic-tree-of-otus" class="section level3">
-<h3>Create a taxonomic tree of OTUs</h3>
-<p>In mothur, determine a representative sequence for each OTU.<br />
-<code>get.oturep(list=Saanich.final.opti_mcc.unique_list.list, fasta=Saanich.final.fasta, count=Saanich.final.count_table, label=0.03, method=abundance)</code></p>
-<p>In python, convert complicated names of the representative sequences to simply Otu1, Otu2, Otu3… OtuN <code>python clean_repFasta_FAST.py Saanich.final.opti_mcc.unique_list.0.03.rep.fasta</code></p>
-<p>In mothur, calculate distances for the renamed representative sequences.<br />
-<code>dist.seqs(fasta=clean_repFasta.fasta, output=lt)</code></p>
-<p>Import mothur-formated representative sequence distance matrix.</p>
-<pre class="r"><code>library(phangorn)
-dist.mat = import_mothur_dist(&quot;clean_repFasta.phylip.dist&quot;)</code></pre>
-<p>Calculate a neighbor-joining tree from this distance matrix.</p>
-<pre class="r"><code>library(ape)
-NJ.tree = bionj(dist.mat)</code></pre>
-</div>
-<div id="manipulate-mothur-formatted-outputs" class="section level3">
-<h3>Manipulate mothur formatted outputs</h3>
 <p>We will create a phyloseq object containing the following, so these data need to be in the correct form for phyloseq.</p>
 <ul>
 <li>OTU table</li>
 <li>Taxonomy</li>
-<li>Taxonomic tree</li>
 <li>Sample metadata</li>
 </ul>
 <p>Load necessary packages.</p>
 <pre class="r"><code>library(phyloseq)
 library(tidyverse)</code></pre>
-<pre><code>## ── Attaching packages ────────────────────── tidyverse 1.2.1 ──</code></pre>
+<pre><code>## ── Attaching packages ───────────────────────────── tidyverse 1.2.1 ──</code></pre>
 <pre><code>## ✔ ggplot2 2.2.1     ✔ purrr   0.2.4
 ## ✔ tibble  1.4.2     ✔ dplyr   0.7.4
 ## ✔ tidyr   0.8.0     ✔ stringr 1.2.0
 ## ✔ readr   1.1.1     ✔ forcats 0.2.0</code></pre>
-<pre><code>## ── Conflicts ───────────────────────── tidyverse_conflicts() ──
+<pre><code>## ── Conflicts ──────────────────────────────── tidyverse_conflicts() ──
 ## ✖ dplyr::filter() masks stats::filter()
 ## ✖ dplyr::lag()    masks stats::lag()</code></pre>
 <p>Import data</p>
@@ -332,18 +315,18 @@ taxonomy = read.table(&quot;Saanich.final.opti_mcc.unique_list.0.03.cons.taxonom
 
 metadata = read.table(&quot;Saanich.metadata.txt&quot;, sep=&quot;\t&quot;, header=TRUE, row.names=1)</code></pre>
 <p>If we look at the data from mothur (OTU and taxonomy), they are not perfectly setup so we need to manipulate them a little with the tidyverse.</p>
-<div id="otu-table" class="section level4">
-<h4>OTU table</h4>
+<div id="otu-table-clean-up" class="section level4">
+<h4>OTU table clean-up</h4>
 <ul>
 <li>Remove extra columns “label” and “numOtus”</li>
 </ul>
 <pre class="r"><code>OTU.clean = OTU %&gt;%
   select(-label, -numOtus)</code></pre>
 </div>
-<div id="taxonomy-table" class="section level4">
-<h4>Taxonomy table</h4>
+<div id="taxonomy-table-clean-up" class="section level4">
+<h4>Taxonomy table clean-up</h4>
 <ul>
-<li>Remove extra colume “Size”</li>
+<li>Remove extra column “Size”</li>
 <li>Separate taxonomy into 1 column per level</li>
 <li>Name taxonomy columns by level</li>
 </ul>
@@ -351,15 +334,17 @@ metadata = read.table(&quot;Saanich.metadata.txt&quot;, sep=&quot;\t&quot;, head
   select(-Size) %&gt;% 
   separate(Taxonomy, c(&quot;Domain&quot;, &quot;Phylum&quot;, &quot;Class&quot;, &quot;Order&quot;, &quot;Family&quot;, &quot;Genus&quot;, &quot;Species&quot;), sep=&quot;;&quot;)</code></pre>
 </div>
-</div>
-<div id="define-parts-of-the-phyloseq-object." class="section level3">
-<h3>Define parts of the phyloseq object.</h3>
+<div id="define-parts-of-the-phyloseq-object." class="section level4">
+<h4>Define parts of the phyloseq object.</h4>
 <p>Phyloseq has very specific formatting so we need to use its functions to tell it exactly what sort of data each of our data frames are.</p>
 <pre class="r"><code>OTU.clean.physeq = otu_table(as.matrix(OTU.clean), taxa_are_rows=FALSE)
 tax.clean.physeq = tax_table(as.matrix(taxonomy.clean))
 metadata.physeq = sample_data(metadata)</code></pre>
+</div>
+<div id="create-and-save-phyloseq-object" class="section level4">
+<h4>Create and save phyloseq object</h4>
 <p>Then we merge all the pieces into 1 phyloseq object.</p>
-<pre class="r"><code>mothur = phyloseq(OTU.clean.physeq, tax.clean.physeq, metadata.physeq, NJ.tree)</code></pre>
+<pre class="r"><code>mothur = phyloseq(OTU.clean.physeq, tax.clean.physeq, metadata.physeq)</code></pre>
 <p>Now we have a lot of intermediate files and dataframes in our R environment. Instead of saving the entire environment, we will specifically save just our <code>mothur</code> phyloseq object for use in the projects.</p>
 <pre class="r"><code>save(mothur, file=&quot;mothur_phyloseq.RData&quot;)</code></pre>
 </div>
