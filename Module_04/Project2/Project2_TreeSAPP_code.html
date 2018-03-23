@@ -133,6 +133,7 @@ $(document).ready(function () {
 <li><a href="#screen">Screen</a></li>
 <li><a href="#treesapp">TreeSAPP</a></li>
 <li><a href="#outputs">Outputs</a></li>
+<li><a href="#example-bash-script">Example bash script</a></li>
 </ul>
 </div>
 
@@ -187,6 +188,30 @@ $(document).ready(function () {
 <div id="outputs" class="section level2">
 <h2>Outputs</h2>
 <p>iTOL outputs are in <code>treesapp_out/iTOL_output/</code> and the classification table is in <code>treesapp_out/final_outputs/marker_contig_map.tsv</code></p>
+</div>
+<div id="example-bash-script" class="section level2">
+<h2>Example bash script</h2>
+<p>example.sh</p>
+<pre><code>#!/bin/bash
+
+time treesapp.py -T 8 --verbose --delete \
+-t D0701 -i bucket/MetaG_assemblies/depth1_assembly.fasta --rpkm -r bucket/MetaG_reads/depth1.fastq.gz -o treesapp_out_dir_depth1
+
+rm treesapp_out_dir_depth1/RPKM_output/*.sam
+
+time treesapp.py -T 8 --verbose --delete \
+-t D0701 -i bucket/MetaG_assemblies/depth2_assembly.fasta --rpkm -r bucket/MetaG_reads/depth2.fastq.gz -o treesapp_out_dir_depth2
+
+rm treesapp_out_dir_depth2/RPKM_output/*.sam
+.
+.
+.</code></pre>
+<p>To utilize</p>
+<pre><code>screen -S treesapp
+
+bash example.sh
+
+Ctrl-a d (to disconnect)</code></pre>
 </div>
 
 
