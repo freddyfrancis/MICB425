@@ -1,0 +1,177 @@
+---
+title: "Project 2 example plots"
+author: "Kim Dill-McFarland"
+date: '2018-03-23'
+output:
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_float:
+      collapsed: no
+---
+
+## Setup
+As always, packages!
+```{r}
+library(tidyverse)
+library(cowplot)
+```
+
+Load in "marker_contig_map.tsv" files. For this example, we are using some fake data for mcrA. Since each depth is in a separate file, we rename the variables so that we can tell them apart when we combine the data frames. We will only need the taxonomy, abundance, and query data.
+```{r message=FALSE}
+mcrA.DNA.10m = read_tsv("mcrA_DNA_10m_marker_contig_map.tsv") %>% 
+  select(Tax.DNA.10 = Confident_Taxonomy, Abund.DNA.10 = Abundance, Query)
+
+mcrA.RNA.10m = read_tsv("mcrA_RNA_10m_marker_contig_map.tsv") %>% 
+  select(Tax.RNA.10 = Confident_Taxonomy, Abund.RNA.10 = Abundance, Query)
+
+mcrA.DNA.200m = read_tsv("mcrA_DNA_200m_marker_contig_map.tsv") %>% 
+    select(Tax.DNA.200 = Confident_Taxonomy, Abund.DNA.200 = Abundance, Query)
+
+mcrA.RNA.200m = read_tsv("mcrA_RNA_200m_marker_contig_map.tsv") %>% 
+    select(Tax.RNA.200 = Confident_Taxonomy, Abund.RNA.200 = Abundance, Query)
+```
+
+Manipulate the data into a single data frame
+```{r}
+mcrA.all = mcrA.DNA.10m %>% 
+# Combine the data frames will full_join to keep all the data
+  full_join(mcrA.RNA.10m, by = "Query") %>% 
+  full_join(mcrA.DNA.200m, by = "Query") %>% 
+  full_join(mcrA.RNA.200m, by = "Query") %>% 
+# Create a taxonomy variable aggregating all taxonomy columns so as to fill in any NAs that might occur. !is.na means "is not NA", so the following says that the Taxonomy data should be taken from Tax.RNA.10 if that is not NA, or else take it from Tax.DNA.10 if that is not NA, or else Tax.RNA.200, etc. until if all are NA, give Taxonomy of "unclassified"
+  mutate(Taxonomy = ifelse(!is.na(Tax.RNA.10), Tax.RNA.10,
+                    ifelse(!is.na(Tax.DNA.10), Tax.DNA.10,
+                    ifelse(!is.na(Tax.RNA.200), Tax.RNA.200,
+                    ifelse(!is.na(Tax.DNA.200), Tax.DNA.200,
+                           "unclassified"))))) %>% 
+# Get rid of the old Tax variables
+  select(-starts_with("Tax.")) %>% 
+# Gather all the abundance data into 1 column 
+  gather("Key", "Abundance", starts_with("Abund")) %>% 
+# Turn the Key into Depth and RNA/DNA variables. We can easily do this because we specifically named these variables with period separation when we loaded in the original data
+  separate(Key, c("Key","Type","Depth_m"), by = ".") %>% 
+# Remove Key variable now that it only contains "Abund". This also serves to reorder the columns so that the very long Query is at the end.
+  select(Depth_m, Type, Abundance, Taxonomy, Query) %>% 
+# Make sure R knows depth is numerical since it came from a character variable
+  mutate(Depth_m = as.numeric(Depth_m)) %>% 
+# Separate Taxonomy into columns so we can plot at different levels
+  separate(Taxonomy, into = c("Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"), sep="; ")
+```
+
+The warning from the above is fine. It tells us that not all queries could be classified down to the species level so these cells are filled in with NA.
+
+Now, this was a lot of data manipulation and will be even longer with 14 tables. So we understand if you prefer to do it in Excel... But look how pretty!
+```{r}
+mcrA.all
+```
+
+## Example plots
+### How does the DNA abundance of your gene of interest differ with depth?
+```{r}
+mcrA.all %>% 
+# Filter the DNA data
+  filter(Type == "DNA") %>% 
+# Change NAs to "unclassified" at the level you want to plot. Here we will do Genus
+  mutate(Genus = ifelse(is.na(Genus), "unclassified", Genus)) %>% 
+  
+ggplot(aes(x = "mcrA", y = Depth_m)) +
+# Use the size aesthetic to show abundance
+  geom_point(aes(size = Abundance)) +
+# Reverse the why axis so depth increases going down
+  scale_y_reverse(lim=c(200,10)) +
+  labs(title = "Abundance of the mcrA gene (DNA) at different depths",
+       x = "") +
+  theme_classic()
+```
+
+### How does the RNA abundance of your gene of interest differ with depth? Is this similar to the DNA levels?
+```{r}
+mcrA.all %>% 
+# Change NAs to "unclassified" at the level you want to plot
+  mutate(Genus = ifelse(is.na(Genus), "unclassified", Genus)) %>% 
+
+# Show both RNA and DNA using an x variable  
+ggplot(aes(x = Type, y = Depth_m)) +
+  geom_point(aes(size = Abundance)) +
+  scale_y_reverse(lim=c(200,10)) +
+  labs(title = "Abundance of the mcrA gene (DNA vs. RNA) at different depths",
+       x = "") +
+  theme_classic()
+```
+
+### What taxa are responsible for your gene of interest? Are they the same with depth? With DNA versus RNA?
+```{r}
+mcrA.all %>% 
+# Change NAs to "unclassified" at the level you want to plot
+  mutate(Genus = ifelse(is.na(Genus), "unclassified", Genus)) %>% 
+  
+ggplot(aes(x = Genus, y = Depth_m)) +
+# Use an ifelse statement to make 0 values into NAs so that they don't show up on the plot
+# Use position_dodge to keep points from overlapping
+  geom_point(aes(size = ifelse(Abundance == 0, NA, Abundance), color = Type), position = position_dodge(0.5)) +
+  scale_y_reverse(lim=c(200,10)) +
+  labs(title = "Abundance of genera with mcrA (DNA vs. RNA) at different depths") +
+  theme_classic() +
+# Rename legend
+  scale_size_continuous(name = "Abundance")
+```
+
+Or you could facet the data.
+```{r}
+mcrA.all %>% 
+# Change NAs to "unclassified" at the level you want to plot
+  mutate(Genus = ifelse(is.na(Genus), "unclassified", Genus)) %>% 
+  
+ggplot(aes(x = Genus, y = Depth_m)) +
+  geom_point(aes(size = ifelse(Abundance == 0, NA, Abundance))) +
+  scale_y_reverse(lim=c(200,10)) +
+  facet_wrap(~Type) +
+  labs(title = "Abundance of genera with mcrA (DNA vs. RNA) at different depths") +
+  theme_classic() +
+  scale_size_continuous(name = "Abundance")
+```
+
+### How does the abundance of your gene of interest relate to nitrogen species in Saanich?
+
+Load in data from project 1 and pull out the geochemical metadata.
+```{r}
+load("mothur_phyloseq.RData")
+
+metadata = data.frame(mothur@sam_data)
+```
+
+Since we are looking at mcrA here, we will use methane (CH~4~) instead of a nitrogen species. First, we remake our abundance plot and save it as an object, "plot1"
+```{r}
+plot1 = mcrA.all %>% 
+# Change NAs to "unclassified" at the level you want to plot
+  mutate(Genus = ifelse(is.na(Genus), "unclassified", Genus)) %>% 
+  
+ggplot(aes(x = Genus, y = Depth_m)) +
+  geom_point(aes(size = ifelse(Abundance == 0, NA, Abundance), color = Type), position = position_dodge(0.5)) +
+  scale_y_reverse(lim=c(200,10)) +
+  labs(y = "") +
+  theme_classic() +
+  scale_size_continuous(name = "Abundance")
+```
+
+Then, we make a plot for methane, "plot2".
+```{r}
+plot2 = metadata %>% 
+# Order the data by depth  
+  arrange(Depth_m) %>% 
+  
+ggplot(aes(x = CH4_nM, y = Depth_m)) +
+    geom_point() +
+    geom_path(aes(group = 1)) +
+    scale_y_reverse(lim=c(200,10)) +
+  theme_classic() +
+  labs(y = "Depth (m)",
+       x = "Methane (nM)")
+```
+
+Finally we use `cowplot` to create a composite figure. We can add panel labels (A, B) and change the relative widths of the plots. We will make the methane plot much skinnier than the abundance plot.
+```{r}
+plot_grid(plot2, plot1, labels=c("A", "B"), rel_widths=c(1/4, 3/4))
+```
+
