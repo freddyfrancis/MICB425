@@ -11,7 +11,7 @@
 
 <meta name="author" content="Connor Morgan-Lang &amp; Kim Dill-McFarland" />
 
-<meta name="date" content="2018-03-23" />
+<meta name="date" content="2018-03-26" />
 
 <title>TreeSAPP demo</title>
 
@@ -123,7 +123,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">TreeSAPP demo</h1>
 <h4 class="author"><em>Connor Morgan-Lang &amp; Kim Dill-McFarland</em></h4>
-<h4 class="date"><em>2018-03-23</em></h4>
+<h4 class="date"><em>2018-03-26</em></h4>
 
 </div>
 
@@ -141,7 +141,9 @@ $(document).ready(function () {
 <h2>Set-up</h2>
 <p>Log-in to Google Cloud Platform with the following, where N is your group number<br />
 <code>gcloud compute ssh groupN</code></p>
-<p>Link Google Cloud storage and computational servers. You do this by pulling the data from <code>si072-omics</code> on the storage part of GCP and linking it with the function <code>gcsfuse</code> to a folder on your compute part of GCP. In this example, we will place it in a directory called <code>bucket</code> though you could call it whatever you would like. <em>Only need to do the first time you use GCP for this project</em><br />
+<p>Link Google Cloud storage and computational servers. You do this by pulling the data from <code>si072-omics</code> on the storage part of GCP and linking it with the function <code>gcsfuse</code> to a folder on your compute part of GCP.</p>
+<p>In this example, we will place it in a directory called <code>bucket</code> though you could call it whatever you would like. First, we make the directory with <code>mkdir</code> and then we <code>gcsfuse</code> to that directory. <em>Only need to do the first time you use GCP for this project</em><br />
+<code>mkdir bucket</code><br />
 <code>gcsfuse si072-omics ~/bucket/</code></p>
 <p>You can now see the data on the GCP compute server<br />
 <code>ls ~/bucket/</code></p>
@@ -167,6 +169,7 @@ $(document).ready(function () {
 <li>-T: number of threads (<em>i.e</em> processors) to use. Max on each group’s instance is 8</li>
 <li>–verbose: print what is happening as TreeSAPP runs</li>
 <li>–delete: remove intermediate files</li>
+<li>–pairing: use paired end files (pe)</li>
 <li>-t: target gene
 <ul>
 <li>narG D0101</li>
@@ -182,8 +185,12 @@ $(document).ready(function () {
 <li>-r: reads file <code>.fastq.gz</code></li>
 <li>-o: output directory within your instance</li>
 </ul>
-<pre><code>time treesapp.py -T 8 --verbose --delete \
--t M0701 -i assembly.fasta --rpkm -r reads.fastq -o treesapp_out_dir</code></pre>
+<p><em>Note that  is just used so that the command can be written across multiple lines for easy reading.</em></p>
+<pre><code>time treesapp.py -T 8 --verbose --delete --pairing pe \
+-t D0701 \
+-i bucket/MetaG_assemblies/depth1_assembly.fasta --rpkm \
+-r bucket/MetaG_reads/depth1.fastq.gz \
+-o treesapp_out_dir_depth1</code></pre>
 </div>
 <div id="outputs" class="section level2">
 <h2>Outputs</h2>
@@ -194,15 +201,17 @@ $(document).ready(function () {
 <p>example.sh</p>
 <pre><code>#!/bin/bash
 
-time treesapp.py -T 8 --verbose --delete \
--t D0701 -i bucket/MetaG_assemblies/depth1_assembly.fasta --rpkm -r bucket/MetaG_reads/depth1.fastq.gz -o treesapp_out_dir_depth1
+time treesapp.py -T 8 --verbose --delete --pairing pe \
+-t D0701 -i bucket/MetaG_assemblies/depth1_assembly.fasta --rpkm \
+-r bucket/MetaG_reads/depth1.fastq.gz -o treesapp_out_dir_depth1
 
-rm treesapp_out_dir_depth1/RPKM_output/*.sam
+rm treesapp_out_dir_depth1/RPKM_outputs/*.sam
 
-time treesapp.py -T 8 --verbose --delete \
--t D0701 -i bucket/MetaG_assemblies/depth2_assembly.fasta --rpkm -r bucket/MetaG_reads/depth2.fastq.gz -o treesapp_out_dir_depth2
+time treesapp.py -T 8 --verbose --delete --pairing pe \
+-t D0701 -i bucket/MetaG_assemblies/depth2_assembly.fasta --rpkm \
+-r bucket/MetaG_reads/depth2.fastq.gz -o treesapp_out_dir_depth2
 
-rm treesapp_out_dir_depth2/RPKM_output/*.sam
+rm treesapp_out_dir_depth2/RPKM_outputs/*.sam
 .
 .
 .</code></pre>
